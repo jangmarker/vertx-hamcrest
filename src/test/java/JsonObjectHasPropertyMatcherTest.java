@@ -1,14 +1,12 @@
-import de.jangmarker.vertx.hamcrest.JsonObjectHasPropertyMatcher;
 import io.vertx.core.json.JsonObject;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.StringDescription;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.experimental.runners.Enclosed;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import static de.jangmarker.vertx.hamcrest.JsonObjectHasPropertyMatcher.hasProperty;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -18,55 +16,86 @@ import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(JUnit4.class)
+@RunWith(Enclosed.class)
 public class JsonObjectHasPropertyMatcherTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    @Test
-    public void hasProperty_match() {
-        Matcher<JsonObject> matcher = hasProperty("a");
+    public static class hasOneProperty {
+        @Test
+        public void matchesName() {
+            Matcher<JsonObject> matcher = hasProperty("a");
 
-        assertMatch(matcher, new JsonObject().put("a", "b"));
+            assertMatch(matcher, new JsonObject().put("a", "b"));
+        }
+
+        @Test
+        public void matchTwoUsingAnd_fails() {
+            Matcher<JsonObject> matcher = allOf(hasProperty("a") ,hasProperty("b"));
+            assertFail(matcher, new JsonObject().put("a", "z"));
+        }
+
+        @Test
+        public void hasDescription() {
+            final Matcher<JsonObject> matcher = hasProperty("a");
+            assertDescription("has property a", matcher);
+        }
     }
 
-    @Test
-    public void doesNotHaveProperty_fail() {
-        Matcher<JsonObject> matcher = hasProperty("a");
+    public static class hasStringProperty {
+        @Test
+        public void matchesContentUsingMatcher() {
+            Matcher<String> content = is("b");
+            Matcher<JsonObject> matcher = hasProperty("a", content);
 
-        assertFail(matcher, new JsonObject().put("z", "b"));
+            assertMatch(matcher, new JsonObject().put("a", "b"));
+        }
+
+        public static class wrongContent {
+            @Test
+            public void failsUsingMatcher() {
+                Matcher<String> content = is("c");
+                Matcher<JsonObject> matcher = hasProperty("a", content);
+
+                assertFail(matcher, new JsonObject().put("a", "b"));
+            }
+
+            @Test
+            public void descriptionHasContentMismatch() {
+                assertDescription("has property a with content is \"life\"", hasProperty("a", is("life")));
+            }
+        }
     }
 
-    @Test
-    public void matchTwoUsingAnd_hasProperties_succeeds() {
-        Matcher<JsonObject> matcher = allOf(hasProperty("a"), hasProperty("b"));
-        assertMatch(matcher, new JsonObject().put("a", "y").put("b", "z"));
+    public static class hasNoProperty {
+        @Test
+        public void checkForProperty_fails() {
+            Matcher<JsonObject> matcher = hasProperty("a");
+
+            assertFail(matcher, new JsonObject().put("z", "b"));
+        }
     }
 
-    @Test
-    public void matchTwoUsingAnd_hasOneProperty_fails() {
-        Matcher<JsonObject> matcher = allOf(hasProperty("a") ,hasProperty("b"));
-        assertFail(matcher, new JsonObject().put("a", "z"));
+    public static class hasTwoProperties {
+        @Test
+        public void matchBoth_succeeds() {
+            Matcher<JsonObject> matcher = allOf(hasProperty("a"), hasProperty("b"));
+            assertMatch(matcher, new JsonObject().put("a", "y").put("b", "z"));
+        }
     }
 
-    @Test
-    public void hasDescription() {
-        final Matcher<JsonObject> matcher = hasProperty("a");
-        assertDescription("has property a", matcher);
-    }
-
-    private void assertDescription(String expectedDescription, Matcher<JsonObject> matcher) {
+    private static void assertDescription(String expectedDescription, Matcher<JsonObject> matcher) {
         Description description = new StringDescription();
         matcher.describeTo(description);
-        assertThat(expectedDescription, is(equalTo(description.toString())));
+        assertThat(description.toString(), is(equalTo(expectedDescription)));
     }
 
-    private void assertFail(Matcher<JsonObject> matcher, JsonObject actual) {
+    private static void assertFail(Matcher<JsonObject> matcher, JsonObject actual) {
         assertFalse(matcher.matches(actual));
     }
 
-    private void assertMatch(Matcher<JsonObject> matcher, JsonObject actual) {
+    private static void assertMatch(Matcher<JsonObject> matcher, JsonObject actual) {
         assertTrue(matcher.matches(actual));
     }
 
