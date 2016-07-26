@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.org/jangmarker/vertx-hamcrest.svg?branch=master)](https://travis-ci.org/jangmarker/vertx-hamcrest)[![codecov](https://codecov.io/gh/jangmarker/vertx-hamcrest/branch/master/graph/badge.svg)](https://codecov.io/gh/jangmarker/vertx-hamcrest)
