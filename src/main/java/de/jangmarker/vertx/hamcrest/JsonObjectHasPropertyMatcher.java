@@ -26,7 +26,7 @@ public class JsonObjectHasPropertyMatcher extends BaseMatcher<JsonObject> {
         return new JsonObjectHasPropertyMatcher(property);
     }
 
-    public static JsonObjectHasPropertyMatcher hasProperty(String property, Matcher<String> contentMatcher) {
+    public static JsonObjectHasPropertyMatcher hasProperty(String property, Matcher<?> contentMatcher) {
         return new JsonObjectHasPropertyMatcher(property, contentMatcher);
     }
 

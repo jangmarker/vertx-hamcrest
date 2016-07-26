@@ -46,7 +46,7 @@ public class JsonObjectHasPropertyMatcherTest {
     @RunWith(Enclosed.class)
     public static class hasStringProperty {
 
-        public static class rightContent {
+        public static class correctContent {
             @Test
             public void matchesContentUsingMatcher() {
                 Matcher<String> content = is("b");
@@ -68,6 +68,33 @@ public class JsonObjectHasPropertyMatcherTest {
             @Test
             public void descriptionHasContentMismatch() {
                 assertDescription("has property a with content is \"life\"", hasProperty("a", is("life")));
+            }
+        }
+    }
+
+    @RunWith(Enclosed.class)
+    public static class hasIntegerProperty {
+        public static class correctContent {
+            @Test
+            public void matchesContentUsingMatcher() {
+                Matcher<Integer> contentMatcher = is(42);
+                Matcher<JsonObject> matcher = hasProperty("question", contentMatcher);
+
+                assertMatch(matcher, new JsonObject().put("question", 42));
+            }
+        }
+    }
+
+    @RunWith(Enclosed.class)
+    public static class hasJsonObjectProperty {
+        public static class correctContent {
+            @Test
+            public void matchesContentUsingMatcher() {
+                JsonObject content = new JsonObject().put("question", "answer");
+                Matcher<JsonObject> contentMatcher = hasProperty("question", is("answer"));
+                Matcher<JsonObject> matcher = hasProperty("object", contentMatcher);
+
+                assertMatch(matcher, new JsonObject().put("object", content));
             }
         }
     }
