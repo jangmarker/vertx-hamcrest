@@ -43,13 +43,17 @@ public class JsonObjectHasPropertyMatcherTest {
         }
     }
 
+    @RunWith(Enclosed.class)
     public static class hasStringProperty {
-        @Test
-        public void matchesContentUsingMatcher() {
-            Matcher<String> content = is("b");
-            Matcher<JsonObject> matcher = hasProperty("a", content);
 
-            assertMatch(matcher, new JsonObject().put("a", "b"));
+        public static class rightContent {
+            @Test
+            public void matchesContentUsingMatcher() {
+                Matcher<String> content = is("b");
+                Matcher<JsonObject> matcher = hasProperty("a", content);
+
+                assertMatch(matcher, new JsonObject().put("a", "b"));
+            }
         }
 
         public static class wrongContent {
